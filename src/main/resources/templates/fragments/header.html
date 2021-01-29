@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-5">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Latest compiled and minified CSS -->
+    <link th:href = "@{/resources/static/css/bootstrap.min.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/js/actions.js}"></script>
+</head>
+<body>
+<div th:fragment="header">
+    <!-- this is header -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container">
+            <a th:href="@{/}" class="navbar-brand">BLOG</a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav">
+                    <div sec:authorize="isAnonymous()">
+                        <a th:href="@{/}" class="nav-item nav-link active">Posts</a>
+                    </div>
+                    <div sec:authorize="isAuthenticated()">
+                        <a th:href="@{/posts/authors/{authorId}(authorId=${authUser.id})}" class="nav-item nav-link active">My posts</a>
+                    </div>
+                    <div sec:authorize="isAuthenticated()">
+                        <a th:href="@{/comments/{usernameAuth}(usernameAuth=${authUser.username})}" class="nav-item nav-link active">My comments</a>
+                    </div>
+                    <a th:href="@{/post/new}" class="nav-item nav-link active">Add post</a>
+
+                </div>
+
+                <form method="get" class="form-inline ml-auto" th:action="@{/posts/search}" th:object="${search}">
+                    <input type="text" class="form-control mr-sm-2" name="search" id="search"  placeholder="Search">
+                    </input>
+                </form>
+
+                <div class="navbar-nav">
+                    <a th:href="@{/registration}" sec:authorize="isAnonymous()" class="nav-item nav-link active">Sign up</a>
+                    <a th:href="@{/login}" sec:authorize="isAnonymous()" class="nav-item nav-link active">Sign in</a>
+                    <a th:href="@{/logout}" sec:authorize="isAuthenticated()" class="nav-item nav-link active">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+</body>
+</html>
+

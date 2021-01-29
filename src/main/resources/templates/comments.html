@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link th:href = "@{/resources/static/css/main.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/js/actions.js}"></script>
+</head>
+<body style="background-color: #f2f2f2">
+
+<div th:replace="fragments/header :: header"></div>
+
+
+<div class="container">
+    <div class="align-items-center pt-4 px-5 my-3 rounded shadow-sm bg-white" style="background-color: white">
+        <div class="form-group">
+            <h2 class="float-right" th:text="${'Posts: '+#lists.size(comments)}"></h2>
+            <h2 class="pb-4" th:text="${'Written by: ' +  authUser.username}"></h2>
+        </div>
+    </div>
+    <div th:if="${not #lists.isEmpty(comments)}">
+        <div class="starter-template panel my-3" th:each="comment, curr: ${comments}"></br>
+            <div class="jumbotron bg-white">
+                <h5 class="text-justify" th:text="${'&#34;'+comment.commentContent+'&#34;'}">Body</h5>
+                <a th:href="@{/post/{id}(id=${comment.idPost})}" class="btn btn-outline-info btn-sm float-right" role="button" aria-pressed="true">Go to post</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

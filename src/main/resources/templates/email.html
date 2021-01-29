@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div style="font-family: Arial, sans-serif; text-align: center;">
+    <div style="background-color: #fcbf49">
+        <p style="color: white; padding: 20px;">Congratulations!</p>
+    </div>
+    <div >
+        <div style="padding: 20px; font-size: 30px" th:text="${'You have been succesfully registered!'}"></div>
+        <div style="padding: 20px; font-size: 20px" th:text="${'First name: ' + user.firstName}"></div>
+        <div style="padding: 20px; font-size: 20px" th:text="${'Last name: ' + user.lastName}"></div>
+        <div style="padding: 20px; font-size: 20px" th:text="${'Username: ' + user.username}"></div>
+        <div style="padding: 20px; font-size: 30px" th:text="${'You can start posting now!'}"></div>
+    </div>
+    <div style="background-color: #fcbf49">
+        <p style="color: white; padding: 20px;">Thank you!</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-5">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link th:href = "@{/resources/static/css/main.css}" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script>
+        $('#myModal2').on('shown.bs.modal', function () {
+            $('#myInput').trigger('focus')
+        })
+
+        $('#deleteAssignmentModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var objectName = button.data('object-name') // Extract info from data-object-name attribute
+
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            var modal = $(this)
+            modal.find('.modal-body p').text('Do you want to delete ' + objectName + '?')
+        })
+    </script>
+</head>
+<body style="background-color: #f2f2f2">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <div class="starter-template panel">
+        </br>
+        <div class="jumbotron bg-white">
+            <h1><a style="padding-bottom: 10px" th:text="${'Post' + post.id}">Title</a></h1>
+
+            <div th:if="${not #lists.isEmpty(post.postsAuthors)}">
+                <div class="d-inline-block" th:text="'Created by: '"></div>
+                <div class="d-inline-block" th:each="postAuthor : ${post.postsAuthors}">
+                    <a class="text-info" th:href="@{/posts/authors/{authorId}(authorId=${postAuthor.author.id})}" th:text="${postAuthor.author.username + ' '}"></a>
+                </div>
+            </div>
+
+            <div th:unless="${not #lists.isEmpty(post.postsAuthors)}">
+                <div class="d-inline-block" th:text="'Created by: '"></div>
+                <div class="d-inline-block" th:text="'Anonymous'"></div>
+            </div>
+            <h5 style="padding-top: 20px" class="panel-body text-justify" th:text="${post.postContent}">Body</h5>
+
+            <div th:if="${not #lists.isEmpty(files)}">
+                <div th:if="${not #lists.isEmpty(post.attachments)}">
+                    <div class="d-inline-block" th:each="att : ${post.attachments}">
+                        <div class="d-inline-block shadow p-1 bg-white rounded" th:if="${#lists.contains(files, att.filename)}">
+                            <img class="d-inline-block" style="height: 200px;" th:src="${'files/'+ att.filename}" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <div class="d-flex flex-row" th:if="${not #lists.isEmpty(post.attachments)}">
+                <div class="p-1" th:text="'Attachments: '"></div>
+                <div class="p-1" th:each="att : ${post.attachments}">
+                    <a class="text-info" th:href="@{/posts/files/{file}(file=${att.filename})}" th:text="${att.filename}+', '"></a>
+                </div>
+            </div>
+
+            <div class="d-flex flex-row">
+                <div class="p-1" th:text="'Tags: '"></div>
+                <div class="p-1" th:each="tag : ${#strings.listSplit(post.tags,' ')} ">
+                    <a class="badge badge-info" th:href="@{/posts/tags/{tag}(tag=${tag})}" th:text="${'#'+tag}+' '"></a>
+                </div>
+            </div>
+
+            <div class="float-right  mb-5">
+                <div sec:authorize="isAuthenticated()">
+                        <div th:if="${#lists.contains(authors, #authentication.getPrincipal().getUsername())} or ${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
+                            <a th:href="@{'/post/'+${post.id} +'/author/add/'}"  class="btn btn-outline-info btn-sm" role="button" aria-pressed="true" th:text="'Add author'"></a>
+                            <a th:href="@{/post/edit/{id}(id=${post.id})}" class="btn btn-outline-info btn-sm" role="button" aria-pressed="true" th:text="'Edit'"></a>
+                            <a class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#myModel" role="button" aria-pressed="true" th:text="'Delete'"></a>
+                            <br>
+                        </div>
+                </div>
+
+                <div class="modal fade" id="myModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Delete post</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this post?
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-info" data-dismiss="modal">Close</a>
+                                <a th:href="@{/post/delete/{id}(id=${post.id})}" class="btn btn-danger" >Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div style="background-color: white">
+        <div class="mt-5 align-items-center p-3 my-3 rounded shadow-sm mb-5">
+            <form method="post">
+                <div class="form-group mx-sm-3 mb-2">
+                    <h3>Add comment: </h3><hr>
+                    <div class="form-group row" sec:authorize="isAnonymous()">
+                        <label for="commentUser" class="col-sm-2 pl-4 col-form-label">Username</label>
+                        <div class="col-sm-10" >
+                            <input type="text" class="form-control" id="commentUser"
+                                   autocomplete="off" th:field="*{comment.username}"/>
+                            <span class="validationError text-danger"
+                                  th:if="${#fields.hasErrors('comment.username')}"
+                                  th:errors="*{comment.username}">Username Error
+                                </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="postcomment" class="col-sm-2 pl-4 col-form-label">Comment</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="postcomment"
+                                   autocomplete="off" th:field="*{comment.commentContent}"/>
+                            <span class="validationError text-danger"
+                                  th:if="${#fields.hasErrors('comment.commentContent')}"
+                                  th:errors="*{comment.commentContent}">Comment Error
+                                </span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-info float-right" type="submit">Add comment</button>
+                </div>
+            </form>
+            <br />
+
+            <div class="mx-sm-3 mb-6">
+                <h2><span><br /></span>Comments: </h2>
+                <div class="form-group mb-2">
+                    <div class="mb-2" th:each="c : ${post.comments}">
+                        <hr>
+                        <div>
+                            <div class="d-inline-block" th:text="'Created by: '"></div>
+                            <a class="d-inline-block text-info" th:href="@{/comments/{user}(user=${c.username})}" th:text="${c.username}+' '"></a>
+                        </div>
+                        <div class="panel-body text-justify p-1"><a th:text="${c.commentContent}">comment</a></div>
+                                <div sec:authorize="isAuthenticated()" th:if="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
+
+                                <div class="float-right mb-5">
+                                    <a th:href="@{'/post/'+${c.idPost}+'/comment/edit/'+${c.id}}" class="btn btn-outline-info btn-sm" role="button" aria-pressed="true" th:text="'Edit'"></a>
+                                    <a th:href="@{'/post/'+${c.idPost}+'/comment/delete/'+${c.id}}"  class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#myModal2" th:attrappend="data-target=${c.id}" role="button" aria-pressed="true" th:text="'Delete'"></a>
+
+                                    <div class="modal fade" id="myModal2" role="dialog" th:attrappend="id=${c.id}">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel2">Delete comment</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete this comment?
+                                                    <span th:text="${c.commentContent}"></span>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a class="btn btn-info" data-dismiss="modal">Close</a>
+                                                    <a th:href="@{'/post/'+${c.idPost}+'/comment/delete/'+${c.id}}" class="btn btn-danger" >Delete</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+<!--                        </div>--><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
