@@ -1,4 +1,4 @@
-# Blog - web application
+# Spring application - Blog
 
 You can add posts with attachments, comments and manage the content. Each guest has limited access to the content, so they can create an account and manage their posts and comments. There is also the role of the admin who manages everything.
 
